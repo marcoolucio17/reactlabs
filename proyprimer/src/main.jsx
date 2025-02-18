@@ -4,12 +4,10 @@ import './index.css'
 import App from './App.jsx'
 import Primer from './Primer.jsx'
 import { Second } from './Second.jsx'
+import { MyApp } from './MyApp.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <>
-      <Primer />
-      <Second />
-    </>
+    <MyApp />
   </StrictMode>,
 )
