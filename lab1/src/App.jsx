@@ -3,6 +3,7 @@ import './App.css'
 import Primer from './Primer'
 import { Second } from './Second'
 import { heroes } from './data/heroes'
+import { Quinto } from './Quinto'
 
 function App() {
   // print heroes
@@ -32,6 +33,8 @@ function App() {
           </p>
         ))}
       </div>
+
+      <Quinto />
 
     </>
   )
