@@ -4,6 +4,7 @@ import Primer from './Primer'
 import { Second } from './Second'
 import { heroes } from './data/heroes'
 import { Quinto } from './Quinto'
+import { Septimo } from './Septimo'
 
 function App() {
   // print heroes
@@ -34,7 +35,9 @@ function App() {
         ))}
       </div>
 
-      <Quinto />
+      {/* <Quinto /> */}
+      
+      <Septimo title = "titulo" subtitle = "titulo chiquito" />
 
     </>
   )
