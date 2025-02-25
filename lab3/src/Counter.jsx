@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 export const Counter = () => {
-    const [ count, setCount ] = useState(0);
+    const [ count, setCount ] = useState(1);
   return (
     <div>
         <h1>Counter: {count}</h1>
