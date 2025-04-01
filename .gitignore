@@ -1,0 +1,6 @@
+
+
+# ignora los node modules del api
+labper2-1/api-backend/node_modules
+labper2-1/api-backend/.env
+
