@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 import {
   Table,
   Button,
@@ -14,7 +15,7 @@ import {
 
 class App extends React.Component {
   state = {
-    data: [], 
+    data: [],
     modalActualizar: false,
     modalInsertar: false,
     form: {
@@ -25,13 +26,22 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    fetch("http://localhost:8080/actores") 
-      .then((response) => response.json())
-      .then((data) => {
-        this.setState({ data }); 
+    axios
+      .get("http://localhost:8080/actores")
+      .then((response) => {
+        this.setState({ data: response.data });
       })
       .catch((error) => console.error("Error al obtener los datos:", error));
   }
+
+  refetchData = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/actores");
+      this.setState({ data: response.data, mostrarModalActualizar: false });
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+    }
+  };
 
   mostrarModalActualizar = (dato) => {
     this.setState({
@@ -50,40 +60,39 @@ class App extends React.Component {
   cerrarModalInsertar = () => {
     this.setState({ modalInsertar: false });
   };
-  editar = (dato) => {
-    var contador = 0;
-    var arreglo = this.state.data;
-    arreglo.map((registro) => {
-      if (dato.id === registro.id) {
-        arreglo[contador].nombre = dato.nombre;
-        arreglo[contador].pelicula = dato.pelicula;
-      }
-      contador++;
-    });
-    this.setState({ data: arreglo, modalActualizar: false });
-  };
-  eliminar = (dato) => {
-    var opcion = window.confirm(
-      "Estás Seguro que deseas Eliminar el elemento " + dato.id
-    );
-    if (opcion === true) {
-      var contador = 0;
-      var arreglo = this.state.data;
-      arreglo.map((registro) => {
-        if (dato.id === registro.id) {
-          arreglo.splice(contador, 1);
-        }
-        contador++;
-      });
-      this.setState({ data: arreglo, modalActualizar: false });
+  editar = async (dato) => {
+    try {
+      await axios.put(`http://localhost:8080/actores/${dato.id}`, dato);
+      this.refetchData();
+      this.cerrarModalActualizar();
+    } catch (error) {
+      console.error("Error al actualizar el dato:", error);
     }
   };
-  insertar = () => {
-    var valorNuevo = { ...this.state.form };
+  eliminar = async (dato) => {
+    const opcion = window.confirm(
+      "Estás Seguro que deseas eliminar el elemento " + dato.id + "?"
+    );
+    if (opcion === true) {
+      try {
+        await axios.delete(`http://localhost:8080/actores/${dato.id}`);
+        this.refetchData();
+      } catch (error) {
+        console.error("Error al eliminar el dato:", error);
+      }
+    }
+  };
+  insertar = async () => {
+    const valorNuevo = { ...this.state.form };
     valorNuevo.id = this.state.data.length + 1;
-    var lista = this.state.data;
-    lista.push(valorNuevo);
-    this.setState({ modalInsertar: false, data: lista });
+
+    try {
+      await axios.post("http://localhost:8080/actores", valorNuevo);
+      this.cerrarModalInsertar();
+      this.refetchData();
+    } catch (error) {
+      console.error("Error al insertar el dato:", error);
+    }
   };
   handleChange = (e) => {
     this.setState({
@@ -196,7 +205,12 @@ class App extends React.Component {
                 className="form-control"
                 readOnly
                 type="text"
-                value={this.state.data.length + 1}
+                // para evitar colisiones de ids
+                value={
+                  this.state.data.length > 0
+                    ? Math.max(...this.state.data.map((d) => d.id)) + 1
+                    : 1
+                }
               />
             </FormGroup>
             <FormGroup>
