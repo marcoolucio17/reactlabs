@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('./db'); 
 require('dotenv').config();
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 8080;
@@ -84,6 +85,26 @@ app.delete('/actores/:id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 
+});
+
+app.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+
+        if (username !== 'tilin' && password !== 'jiji') {
+            throw Error("User not authorized.")
+        }
+
+        const user = { id: 1, username: 'admin' };
+
+        const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ token });
+    } catch (error) {
+        console.error("Error generating token:", error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 app.get('/', async (req, res) => {
