@@ -90,20 +90,48 @@ app.delete('/actores/:id', async (req, res) => {
 app.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-
-
         if (username !== 'tilin' && password !== 'jiji') {
             throw Error("User not authorized.")
         }
-
         const user = { id: 1, username: 'admin' };
-
         const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1h' });
-
         res.json({ token });
     } catch (error) {
         console.error("Error generating token:", error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/credentials', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: "Token missing or invalid" });
+    }
+
+    try {
+        jwt.verify(token, process.env.JWT_SECRET);
+        res.json({ credentials: "none" });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid token" });
+    }
+});
+
+app.get('/private-data', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: "Token missing or invalid" });
+    }
+
+    try {
+        // Verify the token
+        jwt.verify(token, process.env.JWT_SECRET);
+        res.json({ hello: "private data" });
+    } catch (error) {
+        res.status(403).json({ error: "Invalid token" });
     }
 });
 

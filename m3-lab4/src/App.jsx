@@ -10,6 +10,7 @@ function App() {
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [privateData, setPrivateData] = useState(null);
 
   const handleUserChange = (e) => {
     setUsername(e.target.value);
@@ -30,14 +31,21 @@ function App() {
       setToken(token);
       console.log("Yipee", token);
 
+      const privateDataResponse = await axios.get("http://localhost:8080/private-data", {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      });
+
+      setPrivateData(privateDataResponse.data.hello); 
+
       setTimeout(() => {
         setShowAlert(false);
       }, 10000);
-
     } catch (error) {
       setToken("no");
       console.error("Dou :(", error.response?.data || error.message);
-      
+
       setTimeout(() => {
         setShowAlert(false);
       }, 10000);
@@ -98,6 +106,12 @@ function App() {
       {showAlert && token !== "no" && (
         <Alert color="success">
           Bienvenido!! Tu JWT Token: {token}
+        </Alert>
+      )}
+
+      {privateData && (
+        <Alert color="info">
+          Información confidencial: {privateData}
         </Alert>
       )}
     </div>
